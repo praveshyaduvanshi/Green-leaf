@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GreenLeaf Houseplants</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    header h1 {
+      margin: 0;
+    }
+    header a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: bold;
+    }
+    .hero {
+      background: url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846') no-repeat center center/cover;
+      color: white;
+      text-align: center;
+      padding: 150px 20px;
+    }
+    .hero button {
+      background: white;
+      color: #4CAF50;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .products, .cart-page {
+      padding: 20px;
+    }
+    .category {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .product, .cart-item {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      display: inline-block;
+      margin: 10px;
+      padding: 10px;
+      width: 200px;
+      vertical-align: top;
+    }
+    .product img, .cart-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .cart-summary {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>GreenLeaf</h1>
+  <div>
+    <a href="#" onclick="showPage('products')">Products</a>
+    <a href="#" onclick="showPage('cart')">Cart 🛒 <span id="cartCount">0</span></a>
+  </div>
+</header>
+
+<!-- Landing Page -->
+<div id="landing" class="hero">
+  <h1>GreenLeaf Houseplants</h1>
+  <p>Bringing nature to your home with our exclusive houseplant collection.</p>
+  <button onclick="showPage('products')">Get Started</button>
+</div>
+
+<!-- Product Listing Page -->
+<div id="products" class="products" style="display: none;">
+  <h2>Our Houseplants</h2>
+
+  <div class="category">Succulents</div>
+  <div class="product">
+    <img src="https://picsum.photos/id/102/200/150" alt="Succulent">
+    <p>Aloe Vera - ₹200</p>
+    <button onclick="addToCart(0, this)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <img src="https://picsum.photos/id/103/200/150" alt="Succulent">
+    <p>Jade Plant - ₹180</p>
+    <button onclick="addToCart(1, this)">Add to Cart</button>
+  </div>
+
+  <div class="category">Flowering Plants</div>
+  <div class="product">
+    <img src="https://picsum.photos/id/104/200/150" alt="Flower">
+    <p>Peace Lily - ₹250</p>
+    <button onclick="addToCart(2, this)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <img src="https://picsum.photos/id/105/200/150" alt="Flower">
+    <p>Orchid - ₹400</p>
+    <button onclick="addToCart(3, this)">Add to Cart</button>
+  </div>
+
+  <div class="category">Foliage Plants</div>
+  <div class="product">
+    <img src="https://picsum.photos/id/106/200/150" alt="Foliage">
+    <p>Monstera - ₹350</p>
+    <button onclick="addToCart(4, this)">Add to Cart</button>
+  </div>
+  <div class="product">
+    <img src="https://picsum.photos/id/107/200/150" alt="Foliage">
+    <p>Fiddle Leaf Fig - ₹500</p>
+    <button onclick="addToCart(5, this)">Add to Cart</button>
+  </div>
+</div>
+
+<!-- Shopping Cart Page -->
+<div id="cart" class="cart-page" style="display: none;">
+  <h2>Your Shopping Cart</h2>
+  <div id="cartItems"></div>
+
+  <div class="cart-summary">
+    Total Items: <span id="totalItems">0</span><br>
+    Total Price: ₹<span id="totalPrice">0</span>
+  </div>
+
+  <button onclick="alert('Checkout coming soon!')">Checkout</button>
+  <button onclick="showPage('products')">Continue Shopping</button>
+</div>
+
+<script>
+const products = [
+  { name: 'Aloe Vera', price: 200, img: 'https://picsum.photos/id/102/200/150' },
+  { name: 'Jade Plant', price: 180, img: 'https://picsum.photos/id/103/200/150' },
+  { name: 'Peace Lily', price: 250, img: 'https://picsum.photos/id/104/200/150' },
+  { name: 'Orchid', price: 400, img: 'https://picsum.photos/id/105/200/150' },
+  { name: 'Monstera', price: 350, img: 'https://picsum.photos/id/106/200/150' },
+  { name: 'Fiddle Leaf Fig', price: 500, img: 'https://picsum.photos/id/107/200/150' }
+];
+
+let cart = {};
+
+function showPage(page) {
+  document.getElementById('landing').style.display = (page === 'landing') ? 'block' : 'none';
+  document.getElementById('products').style.display = (page === 'products') ? 'block' : 'none';
+  document.getElementById('cart').style.display = (page === 'cart') ? 'block' : 'none';
+  if (page === 'cart') updateCartPage();
+}
+
+function addToCart(index, button) {
+  if (!cart[index]) cart[index] = 0;
+  cart[index]++;
+  button.disabled = true;
+  updateCartIcon();
+}
+
+function updateCartIcon() {
+  let count = Object.values(cart).reduce((a, b) => a + b, 0);
+  document.getElementById('cartCount').innerText = count;
+}
+
+function updateCartPage() {
+  let container = document.getElementById('cartItems');
+  container.innerHTML = '';
+  let totalItems = 0;
+  let totalPrice = 0;
+
+  for (const index in cart) {
+    const product = products[index];
+    const quantity = cart[index];
+    totalItems += quantity;
+    totalPrice += quantity * product.price;
+
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'cart-item';
+    itemDiv.innerHTML = `
+      <img src="${product.img}">
+      <p>${product.name}<br>₹${product.price}</p>
+      <p>Quantity: ${quantity}</p>
+      <button onclick="increase(${index})">+</button>
+      <button onclick="decrease(${index})">-</button>
+      <button onclick="deleteItem(${index})">Delete</button>
+    `;
+    container.appendChild(itemDiv);
+  }
+
+  document.getElementById('totalItems').innerText = totalItems;
+  document.getElementById('totalPrice').innerText = totalPrice;
+}
+
+function increase(index) {
+  cart[index]++;
+  updateCartIcon();
+  updateCartPage();
+}
+
+function decrease(index) {
+  cart[index]--;
+  if (cart[index] <= 0) delete cart[index];
+  updateCartIcon();
+  updateCartPage();
+}
+
+function deleteItem(index) {
+  delete cart[index];
+  updateCartIcon();
+  updateCartPage();
+}
+</script>
+
+</body>
+</html>
